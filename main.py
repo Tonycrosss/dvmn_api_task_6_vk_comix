@@ -1,7 +1,7 @@
 import requests
 import os
+import random
 from dotenv import load_dotenv
-
 load_dotenv()
 
 CLIENT_ID = os.getenv("CLIENT_ID")
@@ -42,21 +42,21 @@ def get_wall_upload_server_json():
     return response.json()
 
 
-def upload_image_resp_json(upload_url):
-    img = open('./614.jpg', 'rb')
-    params = {'photo': img}
-    url = upload_url
-    response = requests.post(url, files=params).json()
-    params = {
-        "access_token": APP_TOKEN,
-        "v": "5.92",
-        "group_id": GROUP_ID,
-        "photo": response["photo"],
-        "hash": response["hash"],
-        "server": response["server"]
-    }
-    url = f"https://api.vk.com/method/photos.saveWallPhoto"
-    response = requests.post(url, params=params)
+def upload_image_resp_json(upload_url, comix_number):
+    with open(f'./{comix_number}.jpg', 'rb') as img:
+        params = {'photo': img}
+        url = upload_url
+        response = requests.post(url, files=params).json()
+        params = {
+            "access_token": APP_TOKEN,
+            "v": "5.92",
+            "group_id": GROUP_ID,
+            "photo": response["photo"],
+            "hash": response["hash"],
+            "server": response["server"]
+        }
+        url = f"https://api.vk.com/method/photos.saveWallPhoto"
+        response = requests.post(url, params=params)
     return response.json()
 
 
@@ -75,13 +75,13 @@ def post_photo(comix_comment, media_id, owner_id):
 
 
 def main():
-    comix_number = "614"
+    comix_number = str(random.randint(1, 1000))
     comix_json = get_comix_json(comix_number)
     download_image(comix_json["img"], comix_number)
     comix_comment = comix_json["alt"]
     upload_server_json = get_wall_upload_server_json()
     upload_server = upload_server_json['response']['upload_url']
-    uploaded_image_resp_json = upload_image_resp_json(upload_server)
+    uploaded_image_resp_json = upload_image_resp_json(upload_server, comix_number)
     media_id = uploaded_image_resp_json["response"][0]["id"]
     owner_id = uploaded_image_resp_json["response"][0]["owner_id"]
     post_photo(comix_comment, media_id, owner_id)
