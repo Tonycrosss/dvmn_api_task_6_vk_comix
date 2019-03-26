@@ -2,6 +2,8 @@ import requests
 import os
 import random
 from dotenv import load_dotenv
+
+# если убрать эту функцию в main, то тогда не находит переменные ниже, вездe None
 load_dotenv()
 
 CLIENT_ID = os.getenv("CLIENT_ID")
