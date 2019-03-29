@@ -15,8 +15,9 @@ def download_image(url, name, extension="jpg"):
 
 def get_comix(comix_number):
     response = requests.get(f"https://xkcd.com/{comix_number}/info.0.json")
-    comix_json = response.json()
-    return comix_json
+    comix = response.json()
+    return comix
+
 
 def get_comix_count():
     response = requests.get(f"https://xkcd.com/info.0.json").json()
@@ -40,12 +41,14 @@ def get_wall_upload_server(app_token):
         "v": "5.92",
         "group_id": GROUP_ID
     }
-    url = f"https://api.vk.com/method/photos.getWallUploadServer"
+    url = "https://api.vk.com/method/photos.getWallUploadServer"
     response = requests.post(url, params=params)
-    return response.json()
+    print(response.json())
+    upload_server = response.json()['response']['upload_url']
+    return upload_server
 
 
-def upload_image_resp(upload_url, comix_number, app_token):
+def upload_image(upload_url, comix_number, app_token):
     with open(f'./{comix_number}.jpg', 'rb') as img:
         params = {'photo': img}
         url = upload_url
@@ -82,14 +85,13 @@ def main():
     app_token = os.getenv("APP_TOKEN")
     comix_count = int(get_comix_count())
     comix_random_number = str(random.randint(1, comix_count))
-    comix_json = get_comix(comix_random_number)
-    download_image(comix_json["img"], comix_random_number)
-    comix_comment = comix_json["alt"]
-    upload_server_json = get_wall_upload_server(app_token)
-    upload_server = upload_server_json['response']['upload_url']
-    uploaded_image_resp_json = upload_image_resp(upload_server, comix_random_number, app_token)
-    media_id = uploaded_image_resp_json["response"][0]["id"]
-    owner_id = uploaded_image_resp_json["response"][0]["owner_id"]
+    comix = get_comix(comix_random_number)
+    download_image(comix["img"], comix_random_number)
+    comix_comment = comix["alt"]
+    upload_server = get_wall_upload_server(app_token)
+    uploaded_image = upload_image(upload_server, comix_random_number, app_token)
+    media_id = uploaded_image["response"][0]["id"]
+    owner_id = uploaded_image["response"][0]["owner_id"]
     post_photo(comix_comment, media_id, owner_id, app_token)
 
 
