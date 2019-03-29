@@ -3,10 +3,6 @@ import os
 import random
 from dotenv import load_dotenv
 
-# если убрать эту функцию в main, то тогда не находит переменные ниже, вездe None
-
-
-# CLIENT_ID = os.getenv("CLIENT_ID")
 
 GROUP_ID = "179323429"
 
